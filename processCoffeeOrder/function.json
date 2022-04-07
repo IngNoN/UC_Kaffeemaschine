@@ -1,0 +1,12 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "queueName": "coffee_machine_data",
+      "connection": "testbussk11_SERVICEBUS"
+    }
+  ]
+}
