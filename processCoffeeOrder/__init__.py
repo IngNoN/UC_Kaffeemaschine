@@ -22,14 +22,16 @@ def main(msg: func.ServiceBusMessage):
     
     #resultDict['body'] = "u\'" + resultDict['body'] + "\'"
     logging.info(resultDict)
-    PRODUCT_ID = u'0012341'
+    PRODUCT_ID = u'00123411'
     PRODUCT_NAME = u'B'
 
+    data = resultDict['body'].split(",")
 
     my_entity = {
         u'PartitionKey': PRODUCT_NAME,
         u'RowKey': PRODUCT_ID,
-        u'Blah': resultDict['body'],
+        u'type': data[0],
+        u'amount': data[1],
     }
 
 
