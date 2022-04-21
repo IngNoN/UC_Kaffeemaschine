@@ -19,7 +19,7 @@ def cm_2_hub():
     coffee_data["amount"] = str(coffee_amount)
     print(coffee_data)
     #print(coffee_type_name[coffe_type_number])
-    client.send_message(str(coffee_data["type"]) + "\n" + str(coffee_data["amount"]))
+    client.send_message(str(coffee_data["type"]) + "," + str(coffee_data["amount"]))
     client.disconnect()
     client.shutdown()
 
@@ -32,6 +32,8 @@ def main():
 
     registry_manager.send_c2d_message(DEVICE_ID, data)
 """
+"""
 if __name__ == '__main__':
-    #main()
-    cm_2_hub()
+    main()
+    """
+cm_2_hub()
