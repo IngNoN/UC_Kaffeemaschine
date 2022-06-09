@@ -1,19 +1,23 @@
-
-from unittest import result
 import azure.functions as func
-
 import logging
 import json
 
 from azure.data.tables import TableServiceClient
-from datetime import datetime
+
+# send to congratiulation message queue
+
+from azure.servicebus import ServiceBusClient, ServiceBusMessage
+
+CONNECTION_STR = "Endpoint=sb://testbus-sk11.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=m0DutAhjDyytP+yxsmTfvevz4jtakRCfIbGsDq3fcQE="
+QUEUE_NAME = "congratiulaiton_message_queue"
+
 
 def main(msg: func.ServiceBusMessage):
+    
     logging.info('Python ServiceBus queue trigger processed message.')
 
-    result = json.dumps({
-        'body': msg.get_body().decode('utf-8')
-    }, default=str)
+    result = msg.get_body().decode('utf-8')
+    
 
     logging.info(result)
 
@@ -21,22 +25,33 @@ def main(msg: func.ServiceBusMessage):
     logging.info(resultDict)
     
     #resultDict['body'] = "u\'" + resultDict['body'] + "\'"
-    logging.info(resultDict)
+    logging.info(type(resultDict))
+    logging.info("before check every 50 coffee")
+    check_every_50_coffee(cmid, resultDict["cmc"])
+    logging.info("message queue succesfully executed")
+
     PRODUCT_ID = u'00123411'
-    PRODUCT_NAME = u'B'
-
-    data = resultDict['body'].split(",")
-
+    PRODUCT_NAME = u'C'
+    cmid = resultDict["cm_id"]
     my_entity = {
-        u'PartitionKey': PRODUCT_NAME,
-        u'RowKey': PRODUCT_ID,
-        u'type': data[0],
-        u'amount': data[1],
+        u'PartitionKey': "CM_"+cmid,
+        u'RowKey': "CNT_"+resultDict["cmc"],
+        u'type': resultDict["type"],
+        u'amount': resultDict["amount"],
     }
-
 
     table_service_client = TableServiceClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=orderstoragecoffee;AccountKey=/HlYJsI+3aFvQijcIYYfvoX3wVZD81RaXS9xW56xKJWPE/QbgHmDKy6mNwTfBrmtcmYw9Y1nxw6A2yM/yxnM3Q==;EndpointSuffix=core.windows.net")
     table_client = table_service_client.get_table_client(table_name="coffeeData")
 
-    entity = table_client.create_entity(entity=my_entity)
+    srv_entity = table_client.create_entity(entity=my_entity)
 
+
+
+def check_every_50_coffee(coffee_id, coffee_count):
+    if True: #int(coffee_count) % 1 == 0:
+        servicebus_client = ServiceBusClient.from_connection_string(conn_str=CONNECTION_STR, logging_enable=True)
+        sender = servicebus_client.get_queue_sender(queue_name=QUEUE_NAME)
+        message = ServiceBusMessage(str(coffee_id))
+        sender.send_messages(message)
+        logging.info("Sent a single message")
+    return
